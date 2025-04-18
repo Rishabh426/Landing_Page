@@ -5,6 +5,34 @@ import { Trophy, Calendar, Users, MapPin, Clock, Award } from "lucide-react"
 import CountdownTimer from "./countdown-timer"
 import Testimonials from "./testimonials"
 import Faq from "./faq"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button"
+import { Check, Loader2 } from "lucide-react"
 
 interface FormData {
   fullName: string;
@@ -19,6 +47,22 @@ interface FormData {
 interface FormErrors {
   [key: string]: string;
 }
+
+// Define the form schema with zod
+const formSchema = z.object({
+  fullName: z.string().min(1, { message: "Full name is required" }),
+  email: z.string().email({ message: "Invalid email address" }),
+  phone: z.string().min(1, { message: "Phone number is required" }),
+  contestType: z.string().min(1, { message: "Please select a contest type" }),
+  teamName: z.string().optional(),
+  teamSize: z.string().optional(),
+  agreeToTerms: z.boolean().refine((val) => val === true, {
+    message: "You must agree to the terms and conditions",
+  }),
+});
+
+// TypeScript interface for our form values
+type FormValues = z.infer<typeof formSchema>;
 
 export default function ContestRegistration() {
   const [formData, setFormData] = useState<FormData>({
@@ -35,6 +79,20 @@ export default function ContestRegistration() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [activeTab, setActiveTab] = useState("upcoming")
+
+  // Initialize the form with react-hook-form and zod validation
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      phone: "",
+      contestType: "",
+      teamName: "",
+      teamSize: "",
+      agreeToTerms: false,
+    },
+  })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const target = e.target as HTMLInputElement;
@@ -82,7 +140,6 @@ export default function ContestRegistration() {
     if (Object.keys(newErrors).length === 0) {
       setIsSubmitting(true)
 
-      // Simulate API call
       setTimeout(() => {
         setIsSubmitting(false)
         setIsSuccess(true)
@@ -96,46 +153,114 @@ export default function ContestRegistration() {
           agreeToTerms: false,
         })
 
-        // Reset success message after 3 seconds
         setTimeout(() => {
           setIsSuccess(false)
         }, 3000)
       }, 1500)
     }
   }
+  
+  // Handle form submission with react-hook-form
+  const onSubmit = (data: FormValues) => {
+    setIsSubmitting(true)
+    
+    // Simulate API request
+    setTimeout(() => {
+      console.log("Form submitted:", data)
+      setIsSubmitting(false)
+      setIsSuccess(true)
+      
+      form.reset()
+      
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        setIsSuccess(false)
+      }, 3000)
+    }, 1500)
+  }
 
   const contests = [
     {
       id: "coding",
-      name: "Coding Challenge",
-      date: "June 15, 2025",
-      location: "Online",
+      name: "Codeathon",
+      date: "April 21, 2025",
+      location: "Graphic Era Hill University, Bhimtal",
       participants: "Individual",
-      time: "10:00 AM - 2:00 PM",
-      daysLeft: 45,
+      time: "10:00am - 4:00am",
+      daysLeft: 3,
     },
     {
       id: "hackathon",
-      name: "24-Hour Hackathon",
-      date: "July 10-11, 2025",
-      location: "Tech Hub Center",
+      name: "Hack the Spring (Hackathon)",
+      date: "April-22, 2025",
+      location: "Graphic Era Hill University",
       participants: "Teams of 2-4",
       time: "Starts at 9:00 AM",
-      daysLeft: 70,
+      daysLeft: 4,
     },
     {
-      id: "datascience",
-      name: "Data Science Competition",
-      date: "August 5, 2025",
-      location: "Online",
-      participants: "Individual or Team",
-      time: "All day event",
-      daysLeft: 96,
+      id: "Sports",
+      name: "Volleyball",
+      date: "April 21, 2025",
+      location: "Graphic Era Hill University",
+      participants: "Team",
+      time: "10:00AM - 4:00PM",
+      daysLeft: 3,
     },
   ]
 
   return (
     <div className="container py-5">
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fadeIn 0.8s ease-in-out;
+        }
+        
+        .animate-slide-up {
+          animation: slideUp 0.6s ease-out forwards;
+        }
+        
+        .slide-delay-1 {
+          animation-delay: 100ms;
+        }
+        
+        .slide-delay-2 {
+          animation-delay: 200ms;
+        }
+        
+        .slide-delay-3 {
+          animation-delay: 300ms;
+        }
+        
+        .slide-delay-4 {
+          animation-delay: 400ms;
+        }
+        
+        .slide-delay-5 {
+          animation-delay: 500ms;
+        }
+        
+        .slide-delay-6 {
+          animation-delay: 600ms;
+        }
+      `}</style>
+      
       <div className="row">
         <div className="col-12 text-center mb-4 animate-fade-up">
           <h1 className="text-3xl font-bold mb-2">Contest Registration</h1>
@@ -143,7 +268,6 @@ export default function ContestRegistration() {
         </div>
       </div>
 
-      {/* New Feature: Countdown Timer for Next Contest */}
       <div className="row mb-5">
         <div className="col-12">
           <div className="bg-light dark:bg-dark p-4 rounded animate-pop">
@@ -153,7 +277,6 @@ export default function ContestRegistration() {
         </div>
       </div>
 
-      {/* Contest Tabs */}
       <div className="row mb-4">
         <div className="col-12">
           <div className="d-flex justify-content-center gap-3">
@@ -215,7 +338,7 @@ export default function ContestRegistration() {
             <div className="p-4 bg-light dark:bg-dark rounded hover-shadow transition animate-slide-left">
               <div className="d-flex align-items-center mb-3">
                 <Trophy className="mr-2 text-warning" size={24} />
-                <h3 className="text-xl font-semibold">AI Innovation Challenge</h3>
+                <h3 className="text-xl font-semibold">Web-3 Hackathon</h3>
               </div>
               <div className="mb-2 d-flex align-items-center">
                 <Calendar className="mr-2" size={16} />
@@ -223,7 +346,7 @@ export default function ContestRegistration() {
               </div>
               <div className="mb-2 d-flex align-items-center">
                 <Award className="mr-2" size={16} />
-                <span>Winner: Team Innovate</span>
+                <span>Winner: 100x Dev</span>
               </div>
               <div className="mt-3 text-center">
                 <span className="bg-secondary text-light py-1 px-3 rounded-full text-sm">Completed</span>
@@ -253,7 +376,7 @@ export default function ContestRegistration() {
             <div className="p-4 bg-light dark:bg-dark rounded hover-shadow transition animate-slide-left">
               <div className="d-flex align-items-center mb-3">
                 <Trophy className="mr-2 text-warning" size={24} />
-                <h3 className="text-xl font-semibold">Mobile App Challenge</h3>
+                <h3 className="text-xl font-semibold">AI Spring</h3>
               </div>
               <div className="mb-2 d-flex align-items-center">
                 <Calendar className="mr-2" size={16} />
@@ -270,140 +393,207 @@ export default function ContestRegistration() {
           </div>
         </div>
       )}
-
+      
       <div className="row mt-5">
         <div className="col-12 col-lg-8 offset-lg-2">
-          <div className="bg-light dark:bg-dark p-4 rounded animate-fade-up">
-            <h2 className="text-2xl font-bold mb-4 text-center">Registration Form</h2>
-
-            {isSuccess && (
-              <div className="bg-success text-light p-3 rounded mb-4 animate-pop">
-                Registration successful! We'll contact you with further details.
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit}>
-              {/* <div className="row"> */}
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="d-block mb-2 font-semibold mr-10">Full Name</label><br/>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    className={`w-100 p-2 rounded border ${errors.fullName ? "border-danger" : "border"}`}
-                    placeholder="Enter your full name"
-                  />
-                  {errors.fullName && <div className="text-danger mt-1 text-sm">{errors.fullName}</div>}
+          <Card className="shadow-lg border-0 overflow-hidden transition-all duration-300 hover:shadow-xl animate-fade-in">
+            <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+              <CardTitle className="text-2xl font-bold text-center animate-pulse">Registration Form</CardTitle>
+            </CardHeader>
+            
+            <CardContent className="p-6 pt-8">
+              {isSuccess && (
+                <div className="bg-green-100 text-green-800 p-3 rounded mb-4 flex items-center animate-bounce">
+                  <Check className="h-5 w-5 mr-2" />
+                  <p className="m-0">Registration successful! We'll contact you with further details.</p>
                 </div>
-
-                <div className="col-12 col-md-6">
-                  <label className="d-block mb-2 font-semibold">Email</label><br/>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={`w-100 p-2 rounded border ${errors.email ? "border-danger" : "border"}`}
-                    placeholder="Enter your email"
-                  />
-                  {errors.email && <div className="text-danger mt-1 text-sm">{errors.email}</div>}
-                </div><br/>
-              {/* </div> */}
-
-              {/* <div className="row"> */}
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="d-block mb-2 font-semibold mr-5">Phone Number</label><br/>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className={`w-100 p-2 rounded border ${errors.phone ? "border-danger" : "border"}`}
-                    placeholder="Enter your phone number"
-                  />
-                  {errors.phone && <div className="text-danger mt-1 text-sm">{errors.phone}</div>}
-                </div>
-
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="d-block font-semibold mr-5 mb-5">Contest Type</label>
-                  <select
-                    name="contestType"
-                    value={formData.contestType}
-                    onChange={handleChange}
-                    className={`w-100 p-2 rounded border ${errors.contestType ? "border-danger" : "border"}`}
-                  >
-                    <option value="">Select a contest</option>
-                    <option value="coding">Coding Challenge</option>
-                    <option value="hackathon">24-Hour Hackathon</option>
-                    <option value="datascience">Data Science Competition</option>
-                  </select>
-                  {errors.contestType && <div className="text-danger mt-1 text-sm">{errors.contestType}</div>}
-                </div>
-              {/* </div> */}
-
-              {/* <div className="row"> */}
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="d-block mb-2 font-semibold">Team Name (if applicable)</label>
-                  <input
-                    type="text"
-                    name="teamName"
-                    value={formData.teamName}
-                    onChange={handleChange}
-                    className="w-100 p-2 rounded border"
-                    placeholder="Enter your team name"
-                  />
-                </div>
-
-                <div className="col-12 col-md-6 mb-3">
-                  <label className="d-block mb-2 font-semibold mr-5">Team Size (if applicable)</label>
-                  <select
-                    name="teamSize"
-                    value={formData.teamSize}
-                    onChange={handleChange}
-                    className="w-100 p-2 rounded border"
-                  >
-                    <option value="">Select team size</option>
-                    <option value="1">Individual</option>
-                    <option value="2">2 members</option>
-                    <option value="3">3 members</option>
-                    <option value="4">4 members</option>
-                  </select>
-                </div>
-              {/* </div> */}
-
-              <div className="row mb-4">
-                <div className="col-12">
-                  <div className="d-flex align-items-center">
-                    <input
-                      type="checkbox"
-                      name="agreeToTerms"
-                      checked={formData.agreeToTerms}
-                      onChange={handleChange}
-                      className="mr-2"
-                      id="terms"
-                    />
-                    <label htmlFor="terms" className="mb-0">
-                      I agree to the terms and conditions
-                    </label>
+              )}
+              
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="animate-slide-up">
+                      <FormField
+                        control={form.control}
+                        name="fullName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="font-semibold">Full Name</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="Enter your full name" 
+                                className="w-full p-2 rounded"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage className="text-danger text-sm" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <div className="animate-slide-up slide-delay-1">
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="font-semibold">Email</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="email"
+                                placeholder="Enter your email" 
+                                className="w-full p-2 rounded"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage className="text-danger text-sm" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <div className="animate-slide-up slide-delay-2">
+                      <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="font-semibold">Phone Number</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="tel"
+                                placeholder="Enter your phone number" 
+                                className="w-full p-2 rounded"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage className="text-danger text-sm" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <div className="animate-slide-up slide-delay-3">
+                      <FormField
+                        control={form.control}
+                        name="contestType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="font-semibold">Contest Type</FormLabel>
+                            <Select 
+                              onValueChange={field.onChange} 
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full p-2 rounded">
+                                  <SelectValue placeholder="Select a contest" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="coding">Coding Challenge</SelectItem>
+                                <SelectItem value="hackathon">24-Hour Hackathon</SelectItem>
+                                <SelectItem value="datascience">Data Science Competition</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage className="text-danger text-sm" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <div className="animate-slide-up slide-delay-4">
+                      <FormField
+                        control={form.control}
+                        name="teamName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="font-semibold">Team Name (if applicable)</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="Enter your team name" 
+                                className="w-full p-2 rounded"
+                                {...field} 
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <div className="animate-slide-up slide-delay-5">
+                      <FormField
+                        control={form.control}
+                        name="teamSize"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="font-semibold">Team Size (if applicable)</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full p-2 rounded">
+                                  <SelectValue placeholder="Select team size" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="1">Individual</SelectItem>
+                                <SelectItem value="2">2 members</SelectItem>
+                                <SelectItem value="3">3 members</SelectItem>
+                                <SelectItem value="4">4 members</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
-                  {errors.agreeToTerms && <div className="text-danger mt-1 text-sm">{errors.agreeToTerms}</div>}
-                </div>
-              </div>
-
-              <div className="row">
-                <div className="col-12 text-center">
-                  <button
-                    type="submit"
-                    className={`py-2 px-4 rounded font-semibold bg-primary text-light transition ${isSubmitting ? "opacity-75" : "hover-shadow"}`}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Submitting..." : "Register Now"}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
+                  
+                  <div className="animate-slide-up slide-delay-6">
+                    <FormField
+                      control={form.control}
+                      name="agreeToTerms"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              id="terms"
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel htmlFor="terms">
+                              I agree to the terms and conditions
+                            </FormLabel>
+                            <FormMessage className="text-danger text-sm" />
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="pt-4 text-center">
+                    <Button 
+                      type="submit"
+                      className="bg-primary text-light py-2 px-6 rounded font-semibold transition hover:shadow-lg transform hover:scale-105"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        "Register Now"
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
         </div>
       </div>
 

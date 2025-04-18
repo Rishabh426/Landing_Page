@@ -12,14 +12,13 @@ export default function CountdownTimer() {
 
   useEffect(() => {
     // Set target date to June 15, 2025 (first contest)
-    const targetDate = new Date("2025-06-15T10:00:00")
+    const targetDate = new Date("2025-04-21T10:00:00")
 
     const updateCountdown = () => {
       const now = new Date()
       const difference = targetDate.getTime() - now.getTime()
 
       if (difference <= 0) {
-        // Contest has started
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
         return
       }
